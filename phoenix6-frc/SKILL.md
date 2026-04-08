@@ -35,13 +35,19 @@ All Phoenix 6 classes live under `com.ctre.phoenix6` (NOT `com.ctre.phoenix` —
 
 | Category | Package |
 |----------|---------|
-| Hardware devices | `com.ctre.phoenix6.hardware` |
-| Control requests | `com.ctre.phoenix6.controls` |
-| Configuration | `com.ctre.phoenix6.configs` |
-| Signal enums | `com.ctre.phoenix6.signals` |
-| Status signals | `com.ctre.phoenix6` (`StatusSignal`, `BaseStatusSignal`) |
-| Simulation | `com.ctre.phoenix6.sim` |
+| Hardware devices | `com.ctre.phoenix6.hardware` — `TalonFX`, `CANcoder`, `Pigeon2`, **`ParentDevice`** |
+| Control requests | `com.ctre.phoenix6.controls` — `DutyCycleOut`, `PositionVoltage`, `Follower`, … |
+| Configuration | `com.ctre.phoenix6.configs` — `TalonFXConfiguration`, `Slot0Configs`, … |
+| Signal enums | `com.ctre.phoenix6.signals` — `InvertedValue`, `NeutralModeValue`, **`MotorAlignmentValue`**, … |
+| Status signals | `com.ctre.phoenix6` — `StatusSignal`, `BaseStatusSignal` |
+| Simulation | `com.ctre.phoenix6.sim` — `TalonFXSimState`, `CANcoderSimState`, … |
 | Swerve mechanisms | `com.ctre.phoenix6.swerve` |
+
+**Commonly forgotten imports:**
+- `ParentDevice` → `com.ctre.phoenix6.hardware.ParentDevice`
+- `MotorAlignmentValue` → `com.ctre.phoenix6.signals.MotorAlignmentValue`
+- `BaseStatusSignal` → `com.ctre.phoenix6.BaseStatusSignal`
+- `StatusCode` → `com.ctre.phoenix6.StatusCode`
 
 ---
 
@@ -81,9 +87,13 @@ There are no ticks. All sensor values are in physical units (rotations, rps, amp
 ### G-5: No .follow() Method
 ```
 WRONG: follower.follow(leader);
-RIGHT: follower.setControl(new Follower(leader.getDeviceID(), false));
+RIGHT: follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));
 ```
-The `boolean` parameter is `opposeMasterDirection`. Use `true` if the follower is physically inverted relative to the leader.
+The second parameter is `MotorAlignmentValue` (an enum, NOT a boolean):
+- `MotorAlignmentValue.Aligned` — follower spins the same direction as leader
+- `MotorAlignmentValue.Opposed` — follower spins opposite (physically reversed motor)
+
+Import: `com.ctre.phoenix6.signals.MotorAlignmentValue`
 
 ### G-6: Control Requests Must Be Final Fields
 ```
@@ -224,7 +234,7 @@ public class MySubsystem extends SubsystemBase {
             if (status.isOK()) break;
         }
         BaseStatusSignal.setUpdateFrequencyForAll(50, m_pos, m_vel);
-        ParentDevice.optimizeBusUtilizationForAll(m_motor);
+        ParentDevice.optimizeBusUtilizationForAll(m_motor); // import com.ctre.phoenix6.hardware.ParentDevice
     }
 
     @Override
@@ -254,7 +264,7 @@ motor.setControl(m_velReq.withVelocity(20.0));     // 20 rot/s
 motor.setControl(m_mmReq.withPosition(10.0));      // Motion Magic to 10 rot
 
 // Follower
-follower.setControl(new Follower(leader.getDeviceID(), false));
+follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));  // or Opposed
 
 // Stop
 motor.setControl(new NeutralOut());

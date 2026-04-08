@@ -55,7 +55,7 @@ private void configureMotor() {
     // Optimize CAN bus — disables unneeded signals
     BaseStatusSignal.setUpdateFrequencyForAll(50, m_pos, m_vel);
     BaseStatusSignal.setUpdateFrequencyForAll(10, m_stator);
-    ParentDevice.optimizeBusUtilizationForAll(m_motor);
+    ParentDevice.optimizeBusUtilizationForAll(m_motor); // import com.ctre.phoenix6.hardware.ParentDevice // import com.ctre.phoenix6.hardware.ParentDevice
 }
 
 // periodic()
@@ -115,7 +115,7 @@ cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold  = 0.0;
 // Apply (with retry — see Pattern 1)
 m_motor.getConfigurator().apply(cfg);
 BaseStatusSignal.setUpdateFrequencyForAll(50, m_pos);
-ParentDevice.optimizeBusUtilizationForAll(m_motor);
+ParentDevice.optimizeBusUtilizationForAll(m_motor); // import com.ctre.phoenix6.hardware.ParentDevice
 
 // periodic() — read position
 BaseStatusSignal.refreshAll(m_pos);
@@ -156,7 +156,7 @@ cfg.Feedback.SensorToMechanismRatio = GEAR_RATIO;
 
 m_motor.getConfigurator().apply(cfg);
 BaseStatusSignal.setUpdateFrequencyForAll(50, m_vel);
-ParentDevice.optimizeBusUtilizationForAll(m_motor);
+ParentDevice.optimizeBusUtilizationForAll(m_motor); // import com.ctre.phoenix6.hardware.ParentDevice
 
 // periodic()
 BaseStatusSignal.refreshAll(m_vel);
@@ -174,7 +174,7 @@ public double getVelocityRPS() {
 // Flywheel example: two motors, same speed
 private final TalonFX m_follower = new TalonFX(2);
 // In constructor:
-m_follower.setControl(new Follower(m_motor.getDeviceID(), false)); // same direction
+m_follower.setControl(new Follower(m_motor.getDeviceID(), MotorAlignmentValue.Aligned)); // same direction
 ```
 
 ---
@@ -223,7 +223,7 @@ for (int i = 0; i < 5; i++) {
     if (status.isOK()) break;
 }
 BaseStatusSignal.setUpdateFrequencyForAll(50, m_pos, m_vel);
-ParentDevice.optimizeBusUtilizationForAll(m_motor);
+ParentDevice.optimizeBusUtilizationForAll(m_motor); // import com.ctre.phoenix6.hardware.ParentDevice
 
 // periodic()
 BaseStatusSignal.refreshAll(m_pos, m_vel);
@@ -254,9 +254,10 @@ private final TalonFX m_lead     = new TalonFX(1);
 private final TalonFX m_follower  = new TalonFX(2);
 
 // Follower control request — set ONCE in constructor, not in periodic
-// false = same direction as leader
-// true  = opposite direction (physically inverted follower)
-private final Follower m_followerReq = new Follower(m_lead.getDeviceID(), false);
+// MotorAlignmentValue.Aligned  = same direction as leader
+// MotorAlignmentValue.Opposed  = opposite direction (physically reversed motor)
+// import com.ctre.phoenix6.signals.MotorAlignmentValue
+private final Follower m_followerReq = new Follower(m_lead.getDeviceID(), MotorAlignmentValue.Aligned);
 
 // Constructor
 public MySubsystem() {
@@ -333,7 +334,7 @@ public void configure() {
         if (motorStatus.isOK()) break;
     }
 
-    ParentDevice.optimizeBusUtilizationForAll(m_motor, m_encoder);
+    ParentDevice.optimizeBusUtilizationForAll(m_motor, m_encoder); // import com.ctre.phoenix6.hardware.ParentDevice
 }
 
 // Without Phoenix Pro — use RemoteCANcoder (free):

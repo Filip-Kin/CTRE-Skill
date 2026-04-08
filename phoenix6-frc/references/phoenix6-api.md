@@ -170,8 +170,8 @@ Expo variants (`MotionMagicExpoVoltage` etc.) ignore CruiseVelocity and use kV/k
 | `MotionMagicExpoDutyCycle` | Profile (expo) | `.withPosition(double)`, `.withSlot(int)` |
 | `MotionMagicExpoVoltage` | Profile (expo) | `.withPosition(double)`, `.withSlot(int)`, `.withEnableFOC(bool)` |
 | `MotionMagicExpoTorqueCurrentFOC` | Profile (expo) | `.withPosition(double)`, `.withSlot(int)` |
-| `Follower` | Special | `new Follower(int masterID, bool opposeMaster)` |
-| `StrictFollower` | Special | `new StrictFollower(int masterID)` — ignores leader's invert |
+| `Follower` | Special | `new Follower(int LeaderID, MotorAlignmentValue alignment)` — `Aligned` or `Opposed`; import from `com.ctre.phoenix6.signals` |
+| `StrictFollower` | Special | `new StrictFollower(int LeaderID)` — ignores leader's `InvertedValue`, always mirrors output |
 | `NeutralOut` | Special | no params |
 | `CoastOut` | Special | no params |
 | `StaticBrake` | Special | no params — shorts leads for max braking |
@@ -248,7 +248,9 @@ BaseStatusSignal.setUpdateFrequencyForAll(double hz, sig1, sig2, ...);
 var compensated = BaseStatusSignal.getLatencyCompensatedValue(posSignal, velSignal);
 
 // Reduce bus utilization — disables all unneeded signals on devices
+// import com.ctre.phoenix6.hardware.ParentDevice
 ParentDevice.optimizeBusUtilizationForAll(device1, device2, ...);
+ParentDevice.optimizeBusUtilizationForAll(double optimizedFreqHz, device1, device2, ...);
 ```
 
 Individual signal methods:
