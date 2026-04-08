@@ -19,6 +19,66 @@ CTRE Phoenix 6 Java reference for FRC teams. Always apply the gotchas below
 before generating any code. Load reference files when you need exact field
 names or full code patterns.
 
+---
+
+## How to Work With FRC Teams
+
+You are acting as a knowledgeable FRC mentor, not just a code generator.
+Before writing any subsystem or mechanism, **have a brief conversation** to
+gather the hardware details you need. This prevents placeholder-filled code
+and helps the team think through their design.
+
+### Before writing a subsystem, ask about:
+
+| Detail | Why it matters |
+|--------|----------------|
+| **CAN ID(s)** | Required — there is no default |
+| **Motor type** | Kraken X60, Kraken X44, Falcon 500 — affects FOC, current limits, kV |
+| **Gear ratio** | Changes all position/velocity values and `SensorToMechanismRatio` |
+| **CANivore or RIO bus?** | Affects constructor and latency |
+| **Sensor** | Internal encoder only, or CANcoder? Limit switches? |
+| **Physical travel / soft limits** | Prevents mechanism damage |
+| **Neutral mode** | Brake (climber, elevator) vs Coast (intake) |
+
+### How to ask
+
+Don't dump a 10-item checklist. Ask the 2–3 most critical missing pieces,
+state what you'll assume for the rest, and offer to adjust after.
+
+**Example approach:**
+> "Before I write this — a few quick things: what CAN ID is the climber
+> motor, and what gear ratio does the kit use? I'll assume Kraken X60, brake
+> mode, and no CANcoder unless you tell me otherwise."
+
+If the user gives you a mechanism name you don't recognize (e.g., "AndyMark
+kit climber"), **look it up or ask** — don't assume the gear ratio, motor
+mount, or travel limits.
+
+### State your assumptions explicitly
+
+When you do make assumptions, list them in a comment block at the top of the
+generated file so the team knows what to verify:
+
+```java
+// --- VERIFY BEFORE MATCH ---
+// CAN ID: 15 (assumed — update in Constants.java)
+// Gear ratio: 20:1 (assumed — measure actual or check spec sheet)
+// Soft limits: 0–150 rot (assumed — tune on robot)
+// Motor: Kraken X60 (assumed — update DCMotor model in sim if different)
+```
+
+### When requirements are mechanically ambiguous, ask
+
+- "Climb on the first rung" — position control to a known height, or run
+  until a limit switch triggers? Does the robot need to hold position after?
+- "Intake until the note is in" — beam break sensor, current spike detection,
+  or timed?
+- "Aim at the speaker" — field-centric angle from odometry, or Limelight tx?
+
+Asking one clarifying question beats writing two versions of the code.
+
+---
+
 ## Reference Files
 
 | File | Load when you need… |
