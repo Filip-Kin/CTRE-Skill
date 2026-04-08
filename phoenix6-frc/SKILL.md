@@ -1,14 +1,15 @@
 ---
 name: phoenix6-frc
 description: >
-  Use when writing or reviewing Java code that uses CTRE Phoenix 6 hardware
-  (TalonFX, TalonFXS, Kraken, Falcon, CANcoder, Pigeon2). Provides API
-  patterns, configuration idioms, unit conventions, and Phoenix 5 migration
-  gotchas. Load when the user mentions TalonFX, TalonFXS, Kraken, Falcon,
-  NEO, Vortex, Minion, CANcoder, Pigeon2, MotionMagic, Phoenix 6, CTRE,
-  or swerve drive in an FRC Java context.
+  Use when writing or reviewing FRC Java code involving CTRE Phoenix 6
+  hardware (TalonFX, TalonFXS, Kraken, Falcon, CANcoder, Pigeon2) or
+  common FRC integration patterns (PathPlanner, Limelight, WPILib SysId,
+  command-based subsystems). Load when the user mentions TalonFX, TalonFXS,
+  Kraken, Falcon, NEO, Vortex, Minion, CANcoder, Pigeon2, MotionMagic,
+  Phoenix 6, CTRE, swerve drive, PathPlanner, AutoBuilder, Limelight,
+  MegaTag, SysId, or AprilTag in an FRC Java context.
 metadata:
-  version: "0.5.0"
+  version: "0.6.0"
   phoenix6_version: "26.1.x"
   frc_season: "2026"
 license: MIT
@@ -107,6 +108,9 @@ Asking one clarifying question beats writing two versions of the code.
 | `references/phoenix6-api.md` | Exact field names, config class fields, method signatures, enums |
 | `references/phoenix6-patterns.md` | Complete Java snippets: subsystem init, MotionMagic, sim, follower, swerve |
 | `references/tuner-x.md` | Phoenix Tuner X features, Swerve Generator workflow, TunerConstants integration |
+| `references/wpilib-integration.md` | Command factory patterns, SysId with TalonFX, SwerveDrivePoseEstimator, WPILib units |
+| `references/limelight.md` | Limelight NT API, MegaTag2 pose estimation, vision measurement injection |
+| `references/pathplanner.md` | AutoBuilder with CTRE swerve, NamedCommands, on-the-fly paths, Choreo comparison |
 
 ---
 
