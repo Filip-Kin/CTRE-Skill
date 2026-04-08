@@ -464,6 +464,94 @@ public void setVelocity(double rps) {
 
 ---
 
+## Pattern 10: Physical Measurements → Mechanism Rotations
+
+Use these formulas when setting soft limits, MotionMagic targets, and
+`kClimbRotations`-style constants. All Phoenix 6 positions are in **mechanism
+rotations** after `SensorToMechanismRatio` is applied.
+
+### Winch / Elevator with a Pulley (circular spool)
+
+```
+mechanism_rotations = travel_inches / (2π × pulley_radius_inches)
+
+// Example: AndyMark kit climber
+//   travel = 24 in, pulley radius = 1 in
+//   rotations = 24 / (2π × 1) = 24 / 6.283 ≈ 3.82 mechanism rotations
+```
+
+```java
+// In Constants:
+public static final double kPulleyRadiusInches = 1.0;
+public static final double kClimbTravelInches  = 24.0; // tune on robot
+public static final double kClimbRotations =
+    kClimbTravelInches / (2 * Math.PI * kPulleyRadiusInches); // ≈ 3.82
+```
+
+### Elevator with a Sprocket + Chain
+
+```
+mechanism_rotations = travel_inches / (sprocket_teeth × chain_pitch_inches)
+
+// Example: #25 chain (0.25 in pitch), 18-tooth sprocket
+//   travel = 30 in
+//   rotations = 30 / (18 × 0.25) = 30 / 4.5 ≈ 6.67 mechanism rotations
+```
+
+```java
+public static final int    kSprocketTeeth      = 18;
+public static final double kChainPitchInches   = 0.25; // #25 chain = 0.25 in
+public static final double kMaxTravelInches    = 30.0;
+public static final double kMaxExtendRotations =
+    kMaxTravelInches / (kSprocketTeeth * kChainPitchInches); // ≈ 6.67
+```
+
+### Rotary Arm (degrees → rotations)
+
+```
+mechanism_rotations = degrees / 360.0
+
+// Example: arm swings from -30° (below horizontal) to +120° (above)
+//   reverse limit = -30/360 = -0.0833 rot
+//   forward limit = 120/360 = 0.333 rot
+```
+
+```java
+public static final double kArmMinRotations = -30.0 / 360.0; // -0.0833
+public static final double kArmMaxRotations = 120.0 / 360.0; //  0.333
+
+// For kG with Arm_Cosine: position=0 means arm horizontal.
+// Positive positions = arm above horizontal.
+```
+
+### Lead Screw
+
+```
+mechanism_rotations = travel_inches / lead_inches_per_revolution
+
+// Example: 1/4"-20 lead screw (20 threads/inch → 1/20 in per revolution)
+//   travel = 6 in
+//   rotations = 6 / (1/20) = 6 × 20 = 120 mechanism rotations
+```
+
+```java
+public static final double kLeadInchesPerRev   = 1.0 / 20.0; // 1/4-20 screw
+public static final double kMaxTravelInches     = 6.0;
+public static final double kMaxExtendRotations  = kMaxTravelInches / kLeadInchesPerRev; // 120
+```
+
+### Chain Pitches Quick Reference
+
+| Chain | Pitch (inches) |
+|-------|---------------|
+| #25   | 0.250 |
+| #35   | 0.375 |
+| #25H  | 0.250 |
+| HTD 5mm belt | 0.197 |
+| GT2 3mm belt | 0.118 |
+
+---
+
 ## Pattern 9: Multi-Slot Control (Voltage + TorqueCurrentFOC)
 
 ```java

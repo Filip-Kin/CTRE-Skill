@@ -52,8 +52,18 @@ state what you'll assume for the rest, and offer to adjust after.
 > mode, and no CANcoder unless you tell me otherwise."
 
 If the user gives you a mechanism name you don't recognize (e.g., "AndyMark
-kit climber"), **look it up or ask** — don't assume the gear ratio, motor
-mount, or travel limits.
+kit climber"), try fetching the product page or spec sheet. If that fails
+(404, login wall, etc.), **ask the user directly** rather than guessing.
+The critical specs for position-controlled mechanisms:
+
+| Mechanism type | Ask for |
+|----------------|---------|
+| Linear (elevator, climber winch) | Total travel in inches/cm, pulley radius **or** sprocket teeth + chain pitch |
+| Rotary arm | Range of motion in degrees, arm length if using kG |
+| Swerve / wheel | Wheel radius, drive gear ratio |
+
+Then use the unit conversion formulas in `references/phoenix6-patterns.md`
+(Pattern 10) to calculate soft limit thresholds in mechanism rotations.
 
 ### State your assumptions explicitly
 
