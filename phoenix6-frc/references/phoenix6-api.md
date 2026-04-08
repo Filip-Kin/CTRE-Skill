@@ -5,6 +5,18 @@ Javadoc: https://api.ctr-electronics.com/phoenix6/stable/java/
 
 ---
 
+## 0. TalonFX vs TalonFXS
+
+| | `TalonFX` | `TalonFXS` |
+|---|---|---|
+| Class | `com.ctre.phoenix6.hardware.TalonFX` | `com.ctre.phoenix6.hardware.TalonFXS` |
+| Config | `TalonFXConfiguration` | `TalonFXSConfiguration` |
+| Motors | Kraken X60, Kraken X44, Falcon 500 (built-in) | NEO, NEO 550, Vortex, Minion, brushed DC (external) |
+| Extra configs | — | `Commutation`, `ExternalTemp`, `CustomBrushlessMotor` |
+| TalonSRX | **Not in Phoenix 6** — Phoenix 5 only | |
+
+---
+
 ## 1. TalonFXConfiguration Fields
 
 `TalonFXConfiguration` contains these sub-configs as public fields (access with dot notation):
@@ -145,6 +157,51 @@ Expo variants (`MotionMagicExpoVoltage` etc.) ignore CruiseVelocity and use kV/k
 | `SensorDirection` | `SensorDirectionValue` | `CounterClockwise_Positive` | Positive direction |
 | `AbsoluteSensorDiscontinuityPoint` | double | 0.5 | Wrap point in rotations (0.5 = ±0.5 range) |
 | `MagnetOffset` | double | 0 | Offset in rotations (set via Tuner X) |
+
+---
+
+## 9b. TalonFXSConfiguration — Additional Fields
+
+`TalonFXSConfiguration` has all the same fields as `TalonFXConfiguration` plus:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `Commutation` | `CommutationConfigs` | **Required** — sets motor type |
+| `ExternalTemp` | `ExternalTempConfigs` | Independent thermistor for auto-shutdown |
+| `CustomBrushlessMotor` | `CustomBrushlessMotorConfigs` | Pole pairs + free speed for unsupported motors |
+
+### CommutationConfigs
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `MotorArrangement` | `MotorArrangementValue` | **Must set** — defaults to `Disabled` |
+| `AdvancedHallSupport` | `AdvancedHallSupportValue` | Enabled/Disabled (Pro license required for benefit) |
+| `BrushedMotorWiring` | `BrushedMotorWiringValue` | For brushed motors: which leads to use |
+
+### MotorArrangementValue Enum
+
+| Value | Motor |
+|-------|-------|
+| `Disabled` | Default — motor will not run |
+| `Minion_JST` | CTRE Minion (brushless) |
+| `NEO_JST` | REV NEO (~6000 RPM @ 12V) |
+| `NEO550_JST` | REV NEO 550 (~11000 RPM @ 12V) |
+| `VORTEX_JST` | REV Vortex (with Solo Adapter) |
+| `Brushed_DC` | Any brushed DC motor (CIM, 775Pro, BAG, etc.) |
+| `CustomBrushless` | 3-phase brushless, user-defined pole pairs |
+
+Import: `com.ctre.phoenix6.signals.MotorArrangementValue`
+
+**Minimal TalonFXS init:**
+```java
+TalonFXSConfiguration cfg = new TalonFXSConfiguration();
+cfg.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST;
+cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+cfg.CurrentLimits.StatorCurrentLimit = 40;
+cfg.CurrentLimits.StatorCurrentLimitEnable = true;
+// Gains in Slot0 same as TalonFX
+motor.getConfigurator().apply(cfg);
+```
 
 ---
 

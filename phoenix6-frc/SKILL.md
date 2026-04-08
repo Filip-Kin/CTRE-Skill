@@ -33,7 +33,8 @@ and helps the team think through their design.
 | Detail | Why it matters |
 |--------|----------------|
 | **CAN ID(s)** | Required — there is no default |
-| **Motor type** | Kraken X60, Kraken X44, Falcon 500 — affects FOC, current limits, kV |
+| **Motor controller** | `TalonFX` (built-in motor) vs `TalonFXS` (external motor) |
+| **Motor type** | Kraken X60/X44, Falcon 500 (TalonFX) — or NEO, NEO 550, Vortex, Minion, brushed (TalonFXS) |
 | **Gear ratio** | Changes all position/velocity values and `SensorToMechanismRatio` |
 | **CANivore or RIO bus?** | Affects constructor and latency |
 | **Sensor** | Internal encoder only, or CANcoder? Limit switches? |
@@ -254,6 +255,27 @@ RIGHT:
 - **TorqueCurrentFOC** (`VelocityTorqueCurrentFOC`, etc.): set `kV = 0`; torque directly accelerates the rotor
 - **kS** for voltage = volts to overcome friction; for torque = amps
 
+### G-15b: TalonFXS Requires MotorArrangement — Default Is Disabled
+```
+WRONG: TalonFXSConfiguration cfg = new TalonFXSConfiguration();
+       motor.getConfigurator().apply(cfg); // MotorArrangement defaults to Disabled!
+
+RIGHT:
+  cfg.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST;       // REV NEO
+  cfg.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;    // CTRE Minion
+  cfg.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;    // REV NEO 550
+  cfg.Commutation.MotorArrangement = MotorArrangementValue.VORTEX_JST;    // REV Vortex
+  cfg.Commutation.MotorArrangement = MotorArrangementValue.Brushed_DC;    // CIM, 775, etc.
+```
+Wrong `MotorArrangement` triggers a thermal fault LED code on the TalonFXS.
+Import: `com.ctre.phoenix6.signals.MotorArrangementValue`
+
+### G-15c: CIM Motors and TalonSRX Are Phoenix 5 Only
+TalonSRX does NOT exist in Phoenix 6. If a team mentions a CIM, 775Pro, or TalonSRX,
+they are describing a Phoenix 5 setup. In Phoenix 6, use TalonFXS with
+`MotorArrangementValue.Brushed_DC` for brushed motors. Ask the team which
+controller they actually have before writing code.
+
 ### G-15: Inversion Is a Config, Not a Runtime Call
 ```
 WRONG: motor.setInverted(true);
@@ -384,10 +406,17 @@ double compPos = BaseStatusSignal.getLatencyCompensatedValue(m_pos, m_vel).in(Ro
 ## Device Constructors
 
 ```java
-// TalonFX
+// TalonFX — motor controller built into Kraken X60, Kraken X44, Falcon 500
 new TalonFX(int deviceId)                    // CAN bus = "rio"
 new TalonFX(int deviceId, String canbus)     // e.g., "canivore"
 new TalonFX(int deviceId, CANBus canbus)     // preferred for CANivore objects
+
+// TalonFXS — standalone controller for external motors (NEO, Minion, Vortex, brushed)
+// Requires cfg.Commutation.MotorArrangement to be set — see G-15b
+new TalonFXS(int deviceId)
+new TalonFXS(int deviceId, String canbus)
+new TalonFXS(int deviceId, CANBus canbus)
+// Use TalonFXSConfiguration (not TalonFXConfiguration) with TalonFXS
 
 // CANcoder
 new CANcoder(int deviceId)
@@ -397,6 +426,16 @@ new CANcoder(int deviceId, String canbus)
 new Pigeon2(int deviceId)
 new Pigeon2(int deviceId, String canbus)
 ```
+
+**TalonFX vs TalonFXS:**
+| | TalonFX | TalonFXS |
+|---|---|---|
+| Motors | Kraken X60, Kraken X44, Falcon 500 | NEO, NEO 550, Vortex, Minion, brushed DC |
+| Config class | `TalonFXConfiguration` | `TalonFXSConfiguration` |
+| Extra config | — | `CommutationConfigs` (motor type selection) |
+| FOC | Yes (Kraken X60) | Advanced Hall Support (Pro) |
+
+**TalonSRX / CIM / 775Pro:** Phoenix 5 only — not supported in Phoenix 6.
 
 **Note:** String canbus overload is deprecated (removal planned 2027). Prefer `CANBus` object for CANivore:
 ```java

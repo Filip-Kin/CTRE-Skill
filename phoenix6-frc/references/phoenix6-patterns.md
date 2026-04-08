@@ -410,6 +410,60 @@ m_pigeonSim.setRawYaw(m_drivetrainSim.getHeading().getDegrees());
 
 ---
 
+## Pattern 9b: TalonFXS with External Motor (NEO / Minion / Brushed)
+
+```java
+// TalonFXS — for motors NOT built into a CTRE housing (NEO, Minion, CIM, 775, etc.)
+// Use TalonFXSConfiguration, NOT TalonFXConfiguration
+private final TalonFXS m_motor = new TalonFXS(15); // or new TalonFXS(15, "canivore")
+
+private void configure() {
+    TalonFXSConfiguration cfg = new TalonFXSConfiguration();
+
+    // REQUIRED: set motor type — default is Disabled and motor will not run
+    // import com.ctre.phoenix6.signals.MotorArrangementValue
+    cfg.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST;      // REV NEO
+    // cfg.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST; // REV NEO 550
+    // cfg.Commutation.MotorArrangement = MotorArrangementValue.VORTEX_JST; // REV Vortex
+    // cfg.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST; // CTRE Minion
+    // cfg.Commutation.MotorArrangement = MotorArrangementValue.Brushed_DC; // CIM, 775, BAG, etc.
+
+    // All other config fields are the same as TalonFXConfiguration
+    cfg.MotorOutput.Inverted   = InvertedValue.CounterClockwise_Positive;
+    cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    cfg.CurrentLimits.StatorCurrentLimit       = 40;
+    cfg.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    cfg.Feedback.SensorToMechanismRatio = GEAR_RATIO;
+
+    cfg.Slot0.kP = 2.0;
+    cfg.Slot0.kV = 0.18; // NEO free speed ~5676 RPM = ~94.6 rot/s → kV ≈ 12/94.6 ≈ 0.127
+    cfg.Slot0.kS = 0.3;
+
+    StatusCode status = StatusCode.StatusCodeNotInitialized;
+    for (int i = 0; i < 5; i++) {
+        status = m_motor.getConfigurator().apply(cfg);
+        if (status.isOK()) break;
+    }
+    ParentDevice.optimizeBusUtilizationForAll(m_motor); // import com.ctre.phoenix6.hardware.ParentDevice
+}
+
+// Control is identical to TalonFX — same setControl(), same StatusSignal accessors
+private final VelocityVoltage m_velReq = new VelocityVoltage(0).withSlot(0);
+
+public void setVelocity(double rps) {
+    m_motor.setControl(m_velReq.withVelocity(rps));
+}
+```
+
+**Notes:**
+- For brushed DC (`Brushed_DC`), also set `cfg.Commutation.BrushedMotorWiring` to select which leads to use
+- kV for NEO ≈ 0.127 V/(rot/s); for CIM ≈ 0.25 V/(rot/s) — tune with SysId
+- TalonSRX (Phoenix 5) is NOT the same as TalonFXS (Phoenix 6)
+
+---
+
 ## Pattern 9: Multi-Slot Control (Voltage + TorqueCurrentFOC)
 
 ```java
