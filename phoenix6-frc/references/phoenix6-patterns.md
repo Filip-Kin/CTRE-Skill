@@ -473,20 +473,27 @@ rotations** after `SensorToMechanismRatio` is applied.
 ### Winch / Elevator with a Pulley (circular spool)
 
 ```
-mechanism_rotations = travel_inches / (2π × pulley_radius_inches)
-
-// Example: AndyMark kit climber
-//   travel = 24 in, pulley radius = 1 in
-//   rotations = 24 / (2π × 1) = 24 / 6.283 ≈ 3.82 mechanism rotations
+cable_travel_inches    = target_height_inches - hook_height_at_start_inches
+mechanism_rotations    = cable_travel_inches / (2π × pulley_radius_inches)
 ```
+
+**For a climber:** `target_height` is the rung height. `hook_height_at_start` is
+how high the hook sits off the floor when the spool is fully retracted and the
+robot is on the ground. These are NOT the same — don't skip the subtraction.
 
 ```java
-// In Constants:
-public static final double kPulleyRadiusInches = 1.0;
-public static final double kClimbTravelInches  = 24.0; // tune on robot
+// In Constants — measure both heights on the actual robot:
+public static final double kPulleyRadiusInches     = 1.0;   // radius of spool/pulley
+public static final double kRungHeightInches        = 36.0;  // ask drive team / measure field element
+public static final double kHookHeightAtStartInches = 14.0;  // hook height when spool fully retracted, robot on floor
 public static final double kClimbRotations =
-    kClimbTravelInches / (2 * Math.PI * kPulleyRadiusInches); // ≈ 3.82
+    (kRungHeightInches - kHookHeightAtStartInches)
+    / (2 * Math.PI * kPulleyRadiusInches);
 ```
+
+**Never hardcode a rung height from a game manual** — game field tolerances vary,
+and the relevant height is measured from the hook's start position, not the floor.
+Ask the team to measure both values on their specific robot and field element.
 
 ### Elevator with a Sprocket + Chain
 

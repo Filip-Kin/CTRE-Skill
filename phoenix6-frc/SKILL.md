@@ -7,7 +7,7 @@ description: >
   Load when the user mentions TalonFX, Kraken, Falcon, CANcoder, Pigeon2,
   MotionMagic, Phoenix 6, CTRE, or swerve drive in an FRC Java context.
 metadata:
-  version: "1.0.0"
+  version: "0.4.0"
   phoenix6_version: "26.1.x"
   frc_season: "2026"
 license: MIT
@@ -77,6 +77,15 @@ generated file so the team knows what to verify:
 // Soft limits: 0–150 rot (assumed — tune on robot)
 // Motor: Kraken X60 (assumed — update DCMotor model in sim if different)
 ```
+
+### Never assume game-specific field dimensions
+
+FRC game rules change every year. **Do not guess or hardcode field element
+heights, distances, or target positions** from a game name. Always ask:
+
+- "What height does the hook need to reach?" (not "the rung is 24 inches")
+- For climbers: also ask how high the hook sits when the spool is fully
+  retracted — the cable travel is the *difference*, not the rung height alone
 
 ### When requirements are mechanically ambiguous, ask
 
