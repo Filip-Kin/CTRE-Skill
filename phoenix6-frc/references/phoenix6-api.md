@@ -12,7 +12,8 @@ Javadoc: https://api.ctr-electronics.com/phoenix6/stable/java/
 | Class | `com.ctre.phoenix6.hardware.TalonFX` | `com.ctre.phoenix6.hardware.TalonFXS` |
 | Config | `TalonFXConfiguration` | `TalonFXSConfiguration` |
 | Motors | Kraken X60, Kraken X44, Falcon 500 (built-in) | NEO, NEO 550, Vortex, Minion, brushed DC (external) |
-| Extra configs | — | `Commutation`, `ExternalTemp`, `CustomBrushlessMotor` |
+| Gear ratio field | `cfg.Feedback.SensorToMechanismRatio` | `cfg.ExternalFeedback.SensorToMechanismRatio` |
+| Extra configs | — | `Commutation` (required!), `ExternalTemp`, `CustomBrushlessMotor` |
 | TalonSRX | **Not in Phoenix 6** — Phoenix 5 only | |
 
 ---
@@ -160,9 +161,25 @@ Expo variants (`MotionMagicExpoVoltage` etc.) ignore CruiseVelocity and use kV/k
 
 ---
 
-## 9b. TalonFXSConfiguration — Additional Fields
+## 9b. TalonFXSConfiguration — Differences from TalonFXConfiguration
 
-`TalonFXSConfiguration` has all the same fields as `TalonFXConfiguration` plus:
+`TalonFXSConfiguration` shares most fields with `TalonFXConfiguration` but has these key differences:
+
+**`Feedback` is REPLACED by `ExternalFeedback` (ExternalFeedbackConfigs):**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `SensorToMechanismRatio` | double | 1.0 | Ratio of sensor rotations to mechanism rotations |
+| `RotorToSensorRatio` | double | 1.0 | Ratio of rotor rotations to remote sensor rotations |
+| `FeedbackRemoteSensorID` | int | — | Device ID of remote sensor (0–62) |
+| `ExternalFeedbackSensorSource` | `ExternalFeedbackSensorSourceValue` | — | Which sensor to use for closed-loop |
+| `SensorPhase` | `SensorPhaseValue` | — | Phase relationship between motor and external sensor |
+| `VelocityFilterTimeConstant` | double | 0 | Kalman velocity filter time constant (0–1 s) |
+| `QuadratureEdgesPerRotation` | int | 4096 | Quadrature encoder transitions per rotation |
+| `AbsoluteSensorDiscontinuityPoint` | double | 0.5 | Wrap point in rotations |
+| `AbsoluteSensorOffset` | double | 0 | Offset for absolute sensor on data port (rotations) |
+
+**TalonFXS-only additional fields:**
 
 | Field | Type | Notes |
 |-------|------|-------|

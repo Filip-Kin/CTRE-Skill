@@ -2,12 +2,13 @@
 name: phoenix6-frc
 description: >
   Use when writing or reviewing Java code that uses CTRE Phoenix 6 hardware
-  (TalonFX, Kraken, Falcon, CANcoder, Pigeon2). Provides API patterns,
-  configuration idioms, unit conventions, and Phoenix 5 migration gotchas.
-  Load when the user mentions TalonFX, Kraken, Falcon, CANcoder, Pigeon2,
-  MotionMagic, Phoenix 6, CTRE, or swerve drive in an FRC Java context.
+  (TalonFX, TalonFXS, Kraken, Falcon, CANcoder, Pigeon2). Provides API
+  patterns, configuration idioms, unit conventions, and Phoenix 5 migration
+  gotchas. Load when the user mentions TalonFX, TalonFXS, Kraken, Falcon,
+  NEO, Vortex, Minion, CANcoder, Pigeon2, MotionMagic, Phoenix 6, CTRE,
+  or swerve drive in an FRC Java context.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
   phoenix6_version: "26.1.x"
   frc_season: "2026"
 license: MIT
@@ -244,16 +245,19 @@ RIGHT:
 ```
 `MotionMagic.*` and `Slot0.*` are sibling fields of `TalonFXConfiguration`.
 
-### G-12: Gear Ratios Go in FeedbackConfigs
+### G-12: Gear Ratios Go in FeedbackConfigs (different field for TalonFXS!)
 ```java
-// After this, motor.getPosition() reports mechanism rotations (e.g., wheel rotations)
+// TalonFX (Kraken/Falcon) — uses cfg.Feedback
 cfg.Feedback.SensorToMechanismRatio = GEAR_RATIO;  // e.g., 10.71 for MK4i L2
-// For external encoder (CANcoder):
+// For external CANcoder with TalonFX:
 cfg.Feedback.RotorToSensorRatio = GEAR_RATIO;
 cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
 cfg.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
+
+// TalonFXS (NEO, Vortex, Minion, brushed) — uses cfg.ExternalFeedback, NOT cfg.Feedback
+cfg.ExternalFeedback.SensorToMechanismRatio = GEAR_RATIO;  // e.g., 10.71 for ToughBox Mini
 ```
-Don't manually divide/multiply by gear ratio everywhere. Configure it once in `FeedbackConfigs`.
+`TalonFXConfiguration` has `Feedback`; `TalonFXSConfiguration` has `ExternalFeedback` (a completely different field). Using `cfg.Feedback` on a `TalonFXSConfiguration` will compile but silently do nothing — the gear ratio won't be applied. Don't manually divide/multiply by gear ratio everywhere. Configure it once.
 
 ### G-13: Simulation Uses SimState, Not PhysicsSim
 ```
