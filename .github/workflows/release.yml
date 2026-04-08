@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Build .skill file
+        run: python scripts/package_skill.py
+
+      - name: Verify archive
+        run: python -c "import zipfile; names = zipfile.ZipFile('phoenix6-frc.skill').namelist(); [print(n) for n in names]; assert 'phoenix6-frc/SKILL.md' in names"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: phoenix6-frc.skill
+          generate_release_notes: true
+          body: |
+            ## phoenix6-frc Claude Code Skill
+
+            Install by uploading `phoenix6-frc.skill` in Claude Code → Settings → Features, or:
+
+            ```bash
+            # User-level (all projects):
+            unzip phoenix6-frc.skill -d ~/.claude/skills/
+
+            # Project-level:
+            unzip phoenix6-frc.skill -d .claude/skills/
+            ```
+
+            See [README](https://github.com/${{ github.repository }}/blob/main/README.md) for full instructions.
