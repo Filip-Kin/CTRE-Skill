@@ -15,6 +15,25 @@ drive in an FRC Java context. It provides:
 - **8 copy-paste code patterns** (subsystem init, position/velocity/MotionMagic control, simulation, follower, CANcoder fusion)
 - **Phoenix Tuner X + Swerve Generator reference** (workflow, TunerConstants fields, integration)
 
+## Supported Tools
+
+| Tool | File | How |
+|------|------|-----|
+| **Claude Code** | `phoenix6-frc.skill` | Upload via Settings → Features, or unzip into `.claude/skills/` |
+| **GitHub Copilot** | `copilot-instructions.md` | Copy to `.github/copilot-instructions.md` in your robot project |
+| **Cursor** (modern) | `phoenix6-frc.mdc` | Copy to `.cursor/rules/phoenix6-frc.mdc` |
+| **Cursor** (legacy) | `cursorrules` | Copy to `.cursorrules` in your robot project |
+
+Download all files from the [latest release](https://github.com/Filip-Kin/CTRE-Skill/releases/latest).
+
+To regenerate the adapter files locally:
+```bash
+python scripts/generate_adapters.py
+# Writes copilot-instructions.md, cursorrules, phoenix6-frc.mdc to adapters/
+```
+
+---
+
 ## Installing the Skill
 
 ### Option A: From the `.skill` file (ZIP upload)

@@ -9,6 +9,7 @@ venv/
 # Build output
 *.skill
 dist/
+adapters/
 
 # Scraper cache
 references/scraped_raw/
